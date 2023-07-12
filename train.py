@@ -12,6 +12,7 @@ from data import create_dataloader
 from earlystop import EarlyStopping
 from networks.trainer import Trainer
 from options.train_options import TrainOptions
+from tqdm import tqdm
 
 
 """Currently assumes jpg_prob, blur_prob 0 or 1"""
@@ -40,28 +41,28 @@ if __name__ == '__main__':
 
     data_loader = create_dataloader(opt)
     dataset_size = len(data_loader)
-    print('#training images = %d' % dataset_size)
+    print('#training images batches = %d' % dataset_size)
 
     train_writer = SummaryWriter(os.path.join(opt.checkpoints_dir, opt.name, "train"))
     val_writer = SummaryWriter(os.path.join(opt.checkpoints_dir, opt.name, "val"))
 
     model = Trainer(opt)
     early_stopping = EarlyStopping(patience=opt.earlystop_epoch, delta=-0.001, verbose=True)
-    for epoch in range(opt.niter):
+    for epoch in tqdm(range(opt.niter)):
         epoch_start_time = time.time()
         iter_data_time = time.time()
         epoch_iter = 0
 
-        for i, data in enumerate(data_loader):
+        for i, data in tqdm(enumerate(data_loader), "data: "):
             model.total_steps += 1
             epoch_iter += opt.batch_size
 
             model.set_input(data)
             model.optimize_parameters()
 
-            if model.total_steps % opt.loss_freq == 0:
-                print("Train loss: {} at step: {}".format(model.loss, model.total_steps))
-                train_writer.add_scalar('loss', model.loss, model.total_steps)
+            # if model.total_steps % opt.loss_freq == 0:
+            # print("Train loss: {} at step: {}".format(model.loss, model.total_steps))
+            train_writer.add_scalar('loss', model.loss, model.total_steps)
 
             if model.total_steps % opt.save_latest_freq == 0:
                 print('saving the latest model %s (epoch %d, model.total_steps %d)' %

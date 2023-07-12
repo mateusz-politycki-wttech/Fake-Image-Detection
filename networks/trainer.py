@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 from networks.resnet import resnet50
 from networks.base_model import BaseModel, init_weights
-
+from networks.vit import ViTModel
 
 class Trainer(BaseModel):
     def name(self):
@@ -12,13 +12,20 @@ class Trainer(BaseModel):
     def __init__(self, opt):
         super(Trainer, self).__init__(opt)
 
+        # if self.isTrain and not opt.continue_train:
+        #     self.model = resnet50(pretrained=True)
+        #     self.model.fc = nn.Linear(2048, 1)
+        #     torch.nn.init.normal_(self.model.fc.weight.data, 0.0, opt.init_gain)
+
+        # if not self.isTrain or opt.continue_train:
+        #     self.model = resnet50(num_classes=1)
+        
         if self.isTrain and not opt.continue_train:
-            self.model = resnet50(pretrained=True)
-            self.model.fc = nn.Linear(2048, 1)
-            torch.nn.init.normal_(self.model.fc.weight.data, 0.0, opt.init_gain)
+            self.model = ViTModel()
+            torch.nn.init.normal_(self.model.classifier.weight.data, 0.0, opt.init_gain)
 
         if not self.isTrain or opt.continue_train:
-            self.model = resnet50(num_classes=1)
+            raise ValueError
 
         if self.isTrain:
             self.loss_fn = nn.BCEWithLogitsLoss()

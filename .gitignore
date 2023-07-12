@@ -1,0 +1,8 @@
+dataset/
+dataset-huge/
+weights/
+results/
+examples/
+*/__pycache__
+__pycache__
+checkpoints/

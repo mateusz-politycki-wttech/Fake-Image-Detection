@@ -8,6 +8,6 @@ class TestOptions(BaseOptions):
         parser.add_argument('--no_resize', action='store_true')
         parser.add_argument('--no_crop', action='store_true')
         parser.add_argument('--eval', action='store_true', help='use eval mode during test time.')
-
+        parser.add_argument('--with_threshold', action='store_true')
         self.isTrain = False
         return parser
